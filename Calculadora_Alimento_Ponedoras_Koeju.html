@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calculadora de alimento para ponedoras</title>
+<style>
+:root{--green:#2e7d32;--orange:#f9a825;--light:#e8f5e9;--input:#fff3cd;--text:#172217}
+*{box-sizing:border-box} body{margin:0;font-family:Arial,sans-serif;background:#f5f7f5;color:var(--text)}
+.wrap{max-width:760px;margin:28px auto;padding:16px}
+.card{background:white;border-radius:18px;overflow:hidden;box-shadow:0 8px 28px #0002}
+h1{margin:0;background:var(--green);color:white;text-align:center;padding:22px;font-size:25px}
+.head,.row{display:grid;grid-template-columns:1fr 1fr;align-items:center}
+.head{background:var(--orange);color:white;font-weight:700;text-align:center}
+.head div,.row div{padding:14px 16px}
+.row{border-bottom:1px solid #e6e6e6}.row .label{font-weight:700;background:var(--light)}
+input,select{width:100%;padding:11px;border:1px solid #d2b95f;border-radius:8px;background:var(--input);font-size:16px;text-align:right}
+select{text-align:left}.result{font-weight:700;text-align:right;font-size:17px}
+.feed{color:var(--green);font-weight:800}.total{background:var(--green)!important;color:white}
+.note{padding:18px;line-height:1.5;font-size:14px;color:#4b554b}
+@media(max-width:560px){.wrap{margin:0;padding:0}.card{border-radius:0;min-height:100vh}h1{font-size:20px}.head,.row{grid-template-columns:48% 52%}.head div,.row div{padding:12px 10px}}
+</style>
+</head>
+<body>
+<div class="wrap"><div class="card">
+<h1>CALCULADORA DE ALIMENTO PARA PONEDORAS</h1>
+<div class="head"><div>Dato</div><div>Ingresar / Resultado</div></div>
+<div class="row"><div class="label">Línea</div><div><select id="linea"><option>H&N Nick Brown</option><option>Hy-Line Brown Max</option><option>Embrapa 051</option></select></div></div>
+<div class="row"><div class="label">Cantidad de aves</div><div><input id="aves" type="number" min="1" value="15"></div></div>
+<div class="row"><div class="label">Edad exacta (días)</div><div><input id="dias" type="number" min="1" value="16"></div></div>
+<div class="row"><div class="label">Semana automática</div><div class="result" id="semana"></div></div>
+<div class="row"><div class="label">Etapa</div><div class="result" id="etapa"></div></div>
+<div class="row"><div class="label">Tipo de alimento</div><div class="result feed" id="alimento"></div></div>
+<div class="row"><div class="label">Consumo g/ave/día</div><div class="result" id="consumo"></div></div>
+<div class="row"><div class="label total">Alimento total por día (kg)</div><div class="result total" id="kg"></div></div>
+<div class="row"><div class="label">Alimento total por día (g)</div><div class="result" id="gramos"></div></div>
+<div class="note">Ingresá la línea, la cantidad de aves y la edad exacta en días. El cálculo se actualiza automáticamente.</div>
+</div></div>
+<script>
+// Consumo semanal usado en la planilla. Los valores pueden editarse aquí si se actualiza una guía genética.
+const consumo = {
+"H&N Nick Brown":[0,13,18,22,27,32,38,45,52,57,61,64,66,68,70,71,73,77,81,90,100,110,115],
+"Hy-Line Brown Max":[0,13,18,22,27,32,38,45,52,57,61,64,66,68,70,71,73,77,81,90,100,110,115],
+"Embrapa 051":[0,13,18,22,27,32,38,45,52,57,61,64,66,68,70,71,73,77,81,90,100,110,115]
+};
+function etapaPorSemana(s){
+ if(s<=6)return ["Inicial","Balanceado INICIADOR"];
+ if(s<=12)return ["Crecimiento","Balanceado CRECIMIENTO"];
+ if(s<=16)return ["Desarrollo","Balanceado DESARROLLO"];
+ if(s<=18)return ["Pre-postura","Balanceado PRE-POSTURA"];
+ return ["Postura","Balanceado POSTURA"];
+}
+function calc(){
+ const linea=document.getElementById("linea").value;
+ const aves=Math.max(0,Number(document.getElementById("aves").value)||0);
+ const dias=Math.max(1,Number(document.getElementById("dias").value)||1);
+ const s=Math.ceil(dias/7);
+ const [etapa,alim]=etapaPorSemana(s);
+ const arr=consumo[linea];
+ const c=s<arr.length?arr[s]:115;
+ const g=aves*c, kg=g/1000;
+ semana.textContent=s; document.getElementById("etapa").textContent=etapa;
+ alimento.textContent=alim; document.getElementById("consumo").textContent=c.toFixed(0)+" g";
+ document.getElementById("kg").textContent=kg.toLocaleString("es-PY",{minimumFractionDigits:2,maximumFractionDigits:3})+" kg";
+ document.getElementById("gramos").textContent=g.toLocaleString("es-PY")+" g";
+}
+["linea","aves","dias"].forEach(id=>document.getElementById(id).addEventListener("input",calc));
+calc();
+</script>
+</body></html>
